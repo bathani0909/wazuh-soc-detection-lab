@@ -1,0 +1,96 @@
+<group name="local,custom_soc_lab,">
+
+  <!-- ========================================= -->
+  <!-- UBUNTU - HIGH / CRITICAL SOC DETECTIONS   -->
+  <!-- ========================================= -->
+
+  <!-- High: SSH brute-force / invalid user activity -->
+  <rule id="100201" level="13">
+    <if_sid>5710</if_sid>
+    <description>High Severity - Suspicious SSH invalid-user authentication attempt detected on Ubuntu</description>
+    <group>authentication_failed,bruteforce,linux,</group>
+    <mitre>
+      <id>T1110.001</id>
+      <id>T1021.004</id>
+    </mitre>
+  </rule>
+
+  <!-- High: Multiple SSH attempts from same source -->
+  <rule id="100202" level="14" frequency="5" timeframe="120">
+    <if_matched_sid>5710</if_matched_sid>
+    <same_srcip />
+    <description>High Severity - Repeated SSH invalid-user login attempts detected from same source</description>
+    <group>authentication_failed,bruteforce,linux,</group>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+  </rule>
+
+  <!-- High: Suspicious sudo / privilege escalation -->
+  <rule id="100203" level="13">
+    <if_sid>5402</if_sid>
+    <description>High Severity - Suspicious sudo privilege escalation activity detected on Ubuntu</description>
+    <group>privilege_escalation,linux,</group>
+    <mitre>
+      <id>T1548.003</id>
+    </mitre>
+  </rule>
+
+  <!-- Critical: Sensitive file modification -->
+  <rule id="100204" level="15">
+    <if_sid>550</if_sid>
+    <match>/opt/wazuh-watch/critical_file.txt</match>
+    <description>Critical Severity - Sensitive monitored file modified on Ubuntu endpoint</description>
+    <group>fim,critical_asset,linux,</group>
+    <mitre>
+      <id>T1565.001</id>
+    </mitre>
+  </rule>
+
+  <!-- ========================================= -->
+  <!-- WINDOWS - HIGH / CRITICAL SOC DETECTIONS  -->
+  <!-- ========================================= -->
+
+  <!-- High: Windows failed logon -->
+  <rule id="100301" level="13">
+    <if_group>windows_security</if_group>
+    <field name="data.win.system.eventID">4625</field>
+    <description>High Severity - Windows failed logon attempt detected</description>
+    <group>authentication_failed,windows,</group>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+  </rule>
+
+  <!-- High: Repeated failed logons -->
+  <rule id="100302" level="14" frequency="5" timeframe="120">
+    <if_matched_sid>100301</if_matched_sid>
+    <description>High Severity - Repeated Windows failed logon attempts detected</description>
+    <group>authentication_failed,windows,bruteforce,</group>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+  </rule>
+
+  <!-- High: Windows successful privileged/network logon -->
+  <rule id="100303" level="12">
+    <if_sid>60106</if_sid>
+    <description>High Severity - Windows successful logon activity detected for investigation</description>
+    <group>authentication_success,windows,investigation,</group>
+    <mitre>
+      <id>T1078</id>
+    </mitre>
+  </rule>
+
+  <!-- High: PowerShell execution via EventChannel -->
+  <rule id="100304" level="13">
+    <if_group>windows</if_group>
+    <match>PowerShell</match>
+    <description>High Severity - PowerShell execution-related activity detected on Windows endpoint</description>
+    <group>execution,powershell,windows,</group>
+    <mitre>
+      <id>T1059.001</id>
+    </mitre>
+  </rule>
+
+</group>

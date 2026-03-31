@@ -1,0 +1,42 @@
+# OS / Editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs / temp
+*.log
+*.tmp
+*.bak
+
+# Shell history / local notes
+*.swp
+*.swo
+
+# Archives
+*.zip
+*.tar
+*.gz
+*.7z
+
+# Screenshots temp exports
+screenshots/**/*.tmp
+
+# Sensitive environment / credentials
+.env
+.env.*
+*.pem
+*.key
+*.crt
+id_rsa
+id_rsa.pub
+
+# Wazuh / Lab local exports (if added later)
+*.pcap
+*.evtx
+*.etl

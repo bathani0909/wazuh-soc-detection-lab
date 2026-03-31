@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-03-31T11:05:12.000+0000",
+  "rule": {
+    "level": 13,
+    "description": "High Severity - PowerShell execution-related activity detected on Windows endpoint",
+    "id": "100304",
+    "mitre": {
+      "id": [
+        "T1059.001"
+      ],
+      "tactic": [
+        "Execution"
+      ],
+      "technique": [
+        "PowerShell"
+      ]
+    },
+    "groups": [
+      "local",
+      "custom_soc_lab",
+      "execution",
+      "powershell",
+      "windows"
+    ]
+  },
+  "agent": {
+    "name": "window-server-2025",
+    "ip": "192.168.101.133"
+  },
+  "manager": {
+    "name": "wazuh-server"
+  },
+  "data": {
+    "process_name": "powershell.exe",
+    "command_line": "powershell -ExecutionPolicy Bypass -Command \"Get-Process\""
+  },
+  "location": "EventChannel"
+}

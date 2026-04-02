@@ -22,7 +22,7 @@ The purpose of this scenario was to validate **file integrity monitoring (FIM)**
 
 ## Alert Snapshot
 
-![Ubuntu Critical File Modification Alert](../screenshots/detections/ubuntu-critical-file-modification-alert.png)
+![Ubuntu Critical File Modification Alert](../screenshots/detections/ubuntu-file-modification-alert.png)
 
 ---
 

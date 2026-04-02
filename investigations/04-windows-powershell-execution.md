@@ -1,130 +1,96 @@
-# Investigation 04 – Suspicious PowerShell Execution (Windows)
+# Investigation 04 — Windows Suspicious PowerShell Execution
 
-This investigation documents a high-severity alert triggered by PowerShell execution activity on the Windows endpoint.
+## Investigation Summary
 
-This scenario demonstrates how Wazuh can detect script-based execution behavior commonly seen in attacker tradecraft and post-compromise activity.
+This investigation documents a **high-severity PowerShell execution alert** triggered on the Windows endpoint and captured through Sysmon telemetry forwarded into Wazuh.
+
+The purpose of this scenario was to validate detection logic for **potential attacker-like PowerShell execution behavior** commonly seen in Windows intrusion activity.
 
 ---
 
-# Alert Summary
+## Alert Details
 
+- **Detection Name:** Suspicious PowerShell Execution
 - **Rule ID:** `100304`
 - **Severity:** High
-- **Agent:** `window-server-2025`
 - **Endpoint:** `WS-25`
-- **Log Source:** Windows / Sysmon / EventChannel
+- **Operating System:** Windows Server 2025 Datacenter Evaluation
+- **Relevant ATT&CK Technique:**
+  - `T1059.001` — PowerShell
 
 ---
 
-# Alert Description
+## Alert Snapshot
 
-The alert was triggered due to PowerShell execution-related activity on the Windows endpoint.
-
-PowerShell is widely used by attackers because it can be leveraged for:
-
-- Execution
-- Discovery
-- Persistence
-- Remote administration
-- Download behavior
-- Fileless malware techniques
+![Windows Suspicious PowerShell Alert](../screenshots/detections/windows-suspicious-powershell-alert.png)
 
 ---
 
-# Investigation Context
+## Supporting Evidence
 
-The alert was intentionally triggered in the lab using a controlled simulation script to validate Wazuh visibility into suspicious Windows command execution behavior.
+![Windows Sysmon PowerShell Evidence](../screenshots/evidence/windows-sysmon-powershell-evidence.png)
 
-The following type of PowerShell activity was used during testing:
+---
 
-```powershell
-powershell -ExecutionPolicy Bypass -Command "Get-Process"
+## Analyst Notes
 
-This was used as a safe execution simulation to validate alerting behavior.
+The alert was triggered after PowerShell execution activity was observed on the Windows endpoint and captured via Sysmon process telemetry.
 
-Key Indicators
-PowerShell execution observed
-Use of:
-powershell.exe
-Execution style:
-ExecutionPolicy Bypass
-Activity category:
-Script-based command execution
-Investigation Steps
-1) Confirm the Executed Process
+The supporting evidence confirms:
+- execution of `powershell.exe`
+- process-level visibility through Sysmon
+- activity aligned with suspicious script or command execution monitoring
 
-Validate whether the process observed was:
+PowerShell is frequently abused by attackers for:
+- execution
+- discovery
+- payload staging
+- lateral movement support
+- defense evasion
 
-powershell.exe
-launched interactively or by another process
-expected for the user or host role
-2) Review Command Line Activity
+Because of that, even relatively simple PowerShell execution can warrant analyst review depending on context.
 
-Analysts should inspect:
+---
 
-Full PowerShell command line
-Parent process
-User context
-Timestamp of execution
-3) Review Additional Script Activity
+## Detection Logic Purpose
 
-Check whether the same host also showed signs of:
+This custom rule was designed to improve detection coverage for:
+- suspicious PowerShell usage
+- attacker-like script execution
+- Windows process activity commonly associated with post-exploitation behavior
 
-Discovery commands
-Encoded PowerShell
-Registry persistence
-Network-based script execution
-4) Correlate with Sysmon / Windows Logs
+The rule helps convert Sysmon process telemetry into actionable SIEM alerting for SOC investigation workflows.
 
-Review related logs for:
+---
 
-Process creation
-PowerShell operational logs
-Script block logging (if enabled)
-Network connections initiated by PowerShell
-5) Validate Whether Activity Was Legitimate
+## Triage Assessment
 
-PowerShell is heavily used by administrators, so analyst validation is required to distinguish:
+### Initial Assessment
+Suspicious Windows execution activity requiring analyst review.
 
-Normal administration
-Lab simulation
-Suspicious execution
-Analysis
+### Likely Intent
+Command execution, script execution, or attacker simulation behavior.
 
-This alert represents a strong execution-phase investigation point.
+### Risk Consideration
+If paired with encoded commands, remote execution, unusual parent processes, or administrative abuse, this type of alert may indicate:
+- malicious script execution
+- post-compromise activity
+- attacker tooling usage
 
-In enterprise environments, PowerShell activity deserves careful review because it is frequently abused for:
+---
 
-Living-off-the-land execution
-Fileless malware delivery
-Host discovery
-Credential access support
-Lateral movement preparation
+## Outcome
 
-The use of ExecutionPolicy Bypass increases investigative value because it is commonly seen in offensive tooling and suspicious script execution.
+This alert was determined to be **expected simulated lab activity** generated to validate PowerShell detection logic and Windows-focused investigation workflow.
 
-MITRE ATT&CK Mapping
-T1059.001 – PowerShell
-Response Actions
+No real malicious compromise occurred on the system.
 
-Recommended SOC actions:
+---
 
-Review the full PowerShell command line
-Validate the user and parent process
-Check for encoded or obfuscated commands
-Inspect for follow-on persistence or download behavior
-Determine whether the execution aligns with approved administrative activity
-Outcome
-PowerShell activity successfully detected
-Wazuh generated the expected high-severity alert
-Detection provided practical Windows execution monitoring value
-Lessons Learned
-PowerShell remains one of the most important Windows detection surfaces
-Even simple command execution can provide strong triage value
-Visibility improves significantly when combined with Sysmon and process telemetry
-Related Files
-logs/windows-powershell-execution.json
-detections/windows-detections.md
-rules/local_rules.xml
-rules/custom-rule-notes.md
-simulations/windows-high-critical-alerts.ps1
+## Investigation Value
+
+This scenario demonstrates practical ability to:
+- investigate Windows PowerShell alerts
+- analyze Sysmon process telemetry
+- validate custom SIEM detections
+- document suspicious execution behavior in a SOC-style format

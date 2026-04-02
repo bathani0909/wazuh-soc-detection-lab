@@ -75,7 +75,7 @@ This project reflects the type of workflow expected in a **junior SOC analyst / 
 
 ## Dashboard Overview
 
-![Wazuh Dashboard Overview](screenshots/overview/wazuh-dashboard-overview.png)
+![Wazuh Dashboard Overview](screenshots/overview/lab-architecture-overview.png)
 
 ---
 

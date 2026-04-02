@@ -1,227 +1,199 @@
-# Custom Rule Notes – Wazuh SOC Detection Lab
+# Custom Rule Notes
 
-This document explains the logic, purpose, and SOC relevance of the custom Wazuh rules used in this lab.
+## Overview
 
-These rules were designed based on **real attack simulations and alerts generated in the lab environment**, not theoretical use cases.
+This file documents the custom Wazuh rules created for this lab to detect suspicious or attacker-like activity across **Linux and Windows systems**.
 
----
+These rules were built to improve visibility into:
 
-# Rule Design Philosophy
+- SSH authentication abuse
+- Linux privilege escalation behavior
+- sensitive file modification
+- suspicious PowerShell execution
 
-The rules in this lab follow these principles:
-
-- Focus on **high-signal detections** (reduce noise)
-- Align with **real SOC investigation scenarios**
-- Map to **MITRE ATT&CK techniques**
-- Prioritize:
-  - Authentication abuse
-  - Privilege escalation
-  - File integrity violations
-  - Script-based execution (PowerShell)
+Each rule was tested in the lab and mapped to relevant **MITRE ATT&CK techniques** where applicable.
 
 ---
 
-# Ubuntu Detection Rules
+## Rule Development Goals
 
-## Rule: 100201 – SSH Invalid User Authentication
+The custom rules in this project were created to support the following Blue Team objectives:
+
+- detect suspicious activity with meaningful alert context
+- improve visibility into Linux and Windows security events
+- simulate realistic SOC alerting workflows
+- validate detections using lab-generated attack activity
+- document investigation-ready alerts for analyst review
+
+The goal was not only to generate alerts, but to ensure the alerts were **practical, explainable, and useful for triage**.
+
+---
+
+## Custom Rules Included
+
+### Rule IDs Implemented
+
+| Rule ID | Detection Name | Platform | Severity |
+|--------|----------------|----------|----------|
+| `100201` | SSH Invalid User Authentication Attempt | Ubuntu | High |
+| `100203` | Suspicious Sudo Privilege Escalation | Ubuntu | High |
+| `100204` | Critical Sensitive File Modification | Ubuntu | Critical |
+| `100304` | Suspicious PowerShell Execution | Windows | High |
+
+---
+
+## Rule 100201 — SSH Invalid User Authentication Attempt
 
 ### Purpose
-Detect unauthorized SSH access attempts using invalid usernames.
 
-### Why it matters
-This is a common indicator of:
-- Brute-force attacks
-- Credential stuffing
-- External reconnaissance
+This rule was created to detect SSH authentication attempts using **invalid usernames** on the Ubuntu endpoint.
 
-### Trigger Source
-- Based on Wazuh rule `5710` (sshd failed login)
+This type of behavior can indicate:
+- username enumeration
+- brute-force style access attempts
+- unauthorized remote access probing
 
-### Key Indicators
-- Invalid user attempts
-- Source IP (attacker system – Kali)
-- Repeated authentication failures
+### Detection Focus
 
-### SOC Context
-This alert should trigger:
-- Source IP investigation
-- Geo-location checks
-- Correlation with brute-force patterns
+The rule improves visibility into Linux authentication activity that may otherwise be buried in normal login noise.
 
-### MITRE Mapping
-- T1110.001 – Password Guessing
-- T1021.004 – SSH
+### MITRE ATT&CK Mapping
+
+- `T1110.001` — Password Guessing
+- `T1021.004` — SSH
+
+### Rule Screenshot
+
+![Rule 100201](../screenshots/rules/rule-100201-ssh-invalid-user.png)
 
 ---
 
-## Rule: 100202 – Repeated SSH Attempts (Brute Force)
+## Rule 100203 — Suspicious Sudo Privilege Escalation
 
 ### Purpose
-Detect multiple failed SSH attempts from the same IP within a short time window.
 
-### Logic
-- Frequency: 5 events
-- Timeframe: 120 seconds
-- Same source IP required
+This rule was created to detect suspicious `sudo` execution activity on the Ubuntu endpoint.
 
-### Why it matters
-Indicates automated brute-force behavior.
+This helps surface Linux events associated with:
+- privilege escalation attempts
+- elevated command execution
+- potential attacker abuse of local administrative access
 
-### SOC Action
-- Block IP (if confirmed malicious)
-- Check for successful login attempts afterward
-- Correlate with other alerts
+### Detection Focus
 
-### MITRE Mapping
-- T1110 – Brute Force
+The rule highlights potentially sensitive escalation behavior that can be important during:
+- post-compromise investigation
+- Linux host triage
+- insider or misuse review
+
+### MITRE ATT&CK Mapping
+
+- `T1548.003` — Sudo and Sudo Caching
+
+### Rule Screenshot
+
+![Rule 100203](../screenshots/rules/rule-100203-sudo-privilege-escalation.png)
 
 ---
 
-## Rule: 100203 – Suspicious Sudo Privilege Escalation
+## Rule 100204 — Critical Sensitive File Modification
 
 ### Purpose
-Detect suspicious or unexpected use of `sudo`.
 
-### Trigger Source
-- Based on Wazuh rule `5402`
+This rule was created to detect modification of a monitored sensitive file on the Ubuntu endpoint.
 
-### Why it matters
-Privilege escalation is a critical step in most attacks.
+This type of activity may indicate:
+- file tampering
+- unauthorized system changes
+- persistence preparation
+- integrity-impacting behavior
 
-### Indicators
-- Execution of commands as root
-- Unusual command paths
-- Repeated sudo attempts
+### Detection Focus
 
-### SOC Context
-Analysts should:
-- Verify user legitimacy
-- Review command history
-- Check for persistence mechanisms
+The rule was designed to support **file integrity monitoring (FIM)** and provide immediate visibility into changes affecting monitored assets.
 
-### MITRE Mapping
-- T1548.003 – Sudo and Sudo Caching
+### MITRE ATT&CK Mapping
+
+- `T1565.001` — Stored Data Manipulation
+
+### Rule Screenshot
+
+![Rule 100204](../screenshots/rules/rule-100204-critical-file-modification.png)
 
 ---
 
-## Rule: 100204 – Critical File Modification
+## Rule 100304 — Suspicious PowerShell Execution
 
 ### Purpose
-Detect modification of a sensitive monitored file.
 
-### Monitored File
-/opt/wazuh-watch/critical_file.txt
+This rule was created to detect PowerShell execution-related activity on the Windows endpoint using telemetry forwarded into Wazuh.
 
+PowerShell is frequently used during:
+- attacker execution
+- script-based activity
+- discovery
+- post-exploitation behavior
 
-### Why it matters
-File Integrity Monitoring (FIM) alerts indicate:
-- Possible tampering
-- Data manipulation
-- Unauthorized access
+### Detection Focus
 
-### Alert Characteristics
-- Hash changes (MD5, SHA1, SHA256)
-- Permission changes
-- Timestamp changes
+The rule helps convert Windows execution telemetry into analyst-actionable alerts that can support:
+- process review
+- command-line investigation
+- suspicious script activity triage
 
-### SOC Action
-- Validate if change was authorized
-- Check user activity
-- Investigate preceding alerts
+### MITRE ATT&CK Mapping
 
-### MITRE Mapping
-- T1565.001 – Stored Data Manipulation
+- `T1059.001` — PowerShell
 
----
+### Rule Screenshot
 
-# Windows Detection Rules
-
-## Rule: 100301 – Failed Logon
-
-### Purpose
-Detect failed Windows authentication attempts.
-
-### Indicator
-- Event ID: 4625
-
-### SOC Relevance
-- Early sign of brute-force attempts
-- Potential credential abuse
+![Rule 100304](../screenshots/rules/rule-100304-suspicious-powershell.png)
 
 ---
 
-## Rule: 100302 – Repeated Failed Logons
+## Detection Engineering Notes
 
-### Purpose
-Identify brute-force behavior on Windows systems.
+A key focus of this project was building detections that were:
 
-### Logic
-- Multiple failed logons within a short timeframe
+- understandable
+- explainable
+- testable
+- relevant to SOC investigation workflows
 
-### SOC Action
-- Investigate source host
-- Check account lockouts
-- Correlate with successful logins
+Instead of creating overly complex logic, the goal was to create alerts that could realistically support:
 
----
+- triage
+- escalation decisions
+- evidence review
+- analyst interpretation
 
-## Rule: 100303 – Successful Logon (Investigation Trigger)
-
-### Purpose
-Highlight successful logons for investigation.
-
-### Why it matters
-Attackers often succeed after multiple failed attempts.
-
-### SOC Context
-- Correlate with:
-  - Previous failed logons
-  - Privileged accounts
-  - Lateral movement
-
-### MITRE Mapping
-- T1078 – Valid Accounts
+This approach keeps the project practical and aligned with real-world defensive workflows.
 
 ---
 
-## Rule: 100304 – PowerShell Execution Detection
+## Validation Approach
 
-### Purpose
-Detect PowerShell activity on Windows endpoints.
+Each rule was validated through controlled activity in the lab environment.
 
-### Why it matters
-PowerShell is heavily used in:
-- Fileless malware
-- Post-exploitation
-- Living-off-the-land techniques
+Validation included:
+- generating the triggering behavior
+- confirming Wazuh alert creation
+- reviewing event evidence
+- documenting the investigation path
+- mapping alerts to ATT&CK where appropriate
 
-### Detection Logic
-- Matches PowerShell execution logs
-
-### SOC Action
-- Review executed commands
-- Check parent process
-- Investigate for encoded or obfuscated scripts
-
-### MITRE Mapping
-- T1059.001 – PowerShell
+This ensured the detections were not just written, but **actually tested and usable**.
 
 ---
 
-# Key Takeaways
+## Why This Matters
 
-- These rules simulate **real SOC detection use cases**
-- Alerts are designed for **investigation, not just detection**
-- Each rule supports:
-  - Threat visibility
-  - Analyst workflow
-  - Incident response readiness
+Custom rule development is one of the most valuable parts of this lab because it demonstrates the ability to:
 
----
+- turn raw telemetry into detections
+- improve SIEM visibility
+- build practical security monitoring logic
+- document detection behavior clearly
+- support investigation-ready alerting
 
-# Future Improvements
-
-- Add correlation rules across hosts
-- Integrate threat intelligence feeds
-- Enhance anomaly-based detection
-- Add Sigma rule equivalents
+This is a core skill set for **SOC, Blue Team, and junior detection engineering roles**.

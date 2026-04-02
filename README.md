@@ -73,6 +73,12 @@ This project reflects the type of workflow expected in a **junior SOC analyst / 
 
 ---
 
+## Dashboard Overview
+
+![Wazuh Dashboard Overview](screenshots/overview/wazuh-dashboard-overview.png)
+
+---
+
 ## Detection Coverage
 
 This lab includes **working detections validated in the environment**.
@@ -86,6 +92,10 @@ This lab includes **working detections validated in the environment**.
 
 **Detection Goal:**  
 Identify failed SSH login attempts using invalid usernames, which may indicate brute-force or reconnaissance activity.
+
+### Detection Example – SSH Invalid User Authentication Attempt
+
+![Ubuntu SSH Invalid User Alert](screenshots/detections/ubuntu-ssh-invalid-user-alert.png)
 
 ---
 
@@ -119,6 +129,10 @@ Detect unauthorized or high-risk modifications to sensitive files.
 **Detection Goal:**  
 Identify suspicious or attacker-like PowerShell activity captured via Sysmon and ingested into Wazuh.
 
+### Detection Example – Suspicious PowerShell Execution
+
+![Windows Suspicious PowerShell Alert](screenshots/detections/windows-suspicious-powershell-alert.png)
+
 ---
 
 ## Investigation Scenarios
@@ -146,9 +160,11 @@ Each investigation focuses on:
 ```text
 wazuh-soc-detection-lab/
 ├── README.md
-├── screenshots/
+├── architecture/
 ├── detections/
+├── docs/
 ├── investigations/
+├── logs/
 ├── rules/
-├── configs/
-└── notes/
+├── screenshots/
+└── simulations/

@@ -1,129 +1,92 @@
-# Investigation 03 – Critical Sensitive File Modification (Ubuntu)
+# Investigation 03 — Ubuntu Critical Sensitive File Modification
 
-This investigation documents a **critical severity** File Integrity Monitoring (FIM) alert triggered by unauthorized modification of a monitored sensitive file on the Ubuntu endpoint.
+## Investigation Summary
 
-This scenario demonstrates how Wazuh can detect integrity-impacting changes to critical files and support SOC investigation workflows.
+This investigation documents a **critical-severity file integrity alert** triggered after modification of a monitored sensitive file on the Ubuntu endpoint.
+
+The purpose of this scenario was to validate **file integrity monitoring (FIM)** coverage and identify suspicious file modification behavior relevant to Linux systems.
 
 ---
 
-# Alert Summary
+## Alert Details
 
+- **Detection Name:** Critical Sensitive File Modification
 - **Rule ID:** `100204`
 - **Severity:** Critical
-- **Agent:** `ubuntu-139`
-- **Monitored File:** `/opt/wazuh-watch/critical_file.txt`
-- **Log Source:** `syscheck`
+- **Endpoint:** `ubuntu`
+- **Operating System:** Ubuntu 24.04.4 LTS
+- **Relevant ATT&CK Technique:**
+  - `T1565.001` — Stored Data Manipulation
 
 ---
 
-# Alert Description
+## Alert Snapshot
 
-The alert was triggered when a monitored file was modified on the Ubuntu system.
-
-This type of activity is important because it may indicate:
-
-- Unauthorized file tampering
-- Data manipulation
-- Malicious system changes
-- Potential impact activity
+![Ubuntu Critical File Modification Alert](../screenshots/detections/ubuntu-critical-file-modification-alert.png)
 
 ---
 
-# Raw Log Evidence
+## Supporting Evidence
 
-```json
-{"timestamp":"2026-03-31T10:29:14.141+0000","rule":{"level":15,"description":"Critical Severity - Sensitive monitored file modified on Ubuntu endpoint","id":"100204"},"agent":{"name":"ubuntu-139","ip":"192.168.101.139"},"syscheck":{"path":"/opt/wazuh-watch/critical_file.txt","event":"modified","changed_attributes":["size","permission","mtime","md5","sha1","sha256"]}}
+![Ubuntu File Modification Evidence](../screenshots/evidence/ubuntu-file-modification-evidence.png)
 
-Key Indicators
-Monitored file changed:
-/opt/wazuh-watch/critical_file.txt
-Change type:
-modified
-Changed attributes:
-Size
-Permissions
-Modification time
-MD5
-SHA1
-SHA256
-Investigation Steps
-1) Identify the Modified File
+---
 
-The affected file was:
+## Analyst Notes
 
-/opt/wazuh-watch/critical_file.txt
+The alert was triggered after a monitored sensitive file was modified on the Ubuntu endpoint.
 
-This file was intentionally monitored as a sensitive asset for FIM validation.
+The supporting evidence confirms:
+- file modification activity occurred
+- the monitored file path matched the custom detection criteria
+- the event was captured through Wazuh file integrity monitoring logic
 
-2) Review What Changed
+Unauthorized or unexpected modification of sensitive files can indicate:
+- attacker tampering
+- persistence preparation
+- unauthorized changes to monitored system content
 
-Wazuh detected multiple integrity-impacting changes, including:
+---
 
-File content change
-File size change
-Permission change
-Hash changes
+## Detection Logic Purpose
 
-These are strong indicators of file tampering or unauthorized modification.
+This custom rule was created to identify:
+- changes to monitored sensitive files
+- high-risk Linux file modification activity
+- integrity-impacting actions that warrant immediate analyst review
 
-3) Validate Whether Change Was Authorized
+This improves visibility into suspicious changes that may otherwise go unnoticed during normal system activity.
 
-Analysts should determine:
+---
 
-Who modified the file
-Whether the modification was expected
-Whether there was a maintenance or admin task at that time
-4) Review Preceding Activity
+## Triage Assessment
 
-Correlate with:
+### Initial Assessment
+High-priority integrity event requiring immediate review.
 
-SSH login attempts
-Sudo activity
-Shell history
-Command execution logs
-5) Review File Ownership and Permissions
+### Likely Intent
+File tampering, unauthorized modification, or test simulation activity.
 
-Important checks include:
+### Risk Consideration
+Depending on file sensitivity, this type of event could indicate:
+- attacker persistence preparation
+- system tampering
+- operational or configuration integrity impact
 
-ls -l /opt/wazuh-watch/critical_file.txt
-stat /opt/wazuh-watch/critical_file.txt
+---
 
-This helps determine whether the change also altered file access controls.
+## Outcome
 
-Analysis
+This alert was determined to be **expected simulated lab activity** generated to validate file integrity monitoring and detection engineering coverage.
 
-This alert represents a high-confidence integrity event.
+No real malicious persistence or unauthorized tampering remained on the endpoint.
 
-In a real environment, modification of a sensitive monitored file without change approval would require immediate triage because it may indicate:
+---
 
-Configuration tampering
-Data manipulation
-Privileged unauthorized access
-Adversary impact activity
+## Investigation Value
 
-The fact that multiple file attributes changed increases the severity and investigative priority.
-
-MITRE ATT&CK Mapping
-T1565.001 – Stored Data Manipulation
-Response Actions
-
-Recommended SOC actions:
-
-Confirm whether the file change was authorized
-Identify the responsible user or process
-Compare file contents before and after the change
-Restore the original file if required
-Increase monitoring on related sensitive paths
-Outcome
-File modification successfully detected
-Wazuh FIM generated a critical alert as expected
-Detection provided strong evidence for integrity monitoring use cases
-Lessons Learned
-File Integrity Monitoring is highly valuable for Linux security monitoring
-Sensitive files should be monitored in real time where possible
-Hash, permission, and timestamp changes provide strong forensic value
-Related Files
-logs/ubuntu-critical-file-modification.json
-detections/ubuntu-detections.md
-rules/local_rules.xml
-rules/custom-rule-notes.md
+This scenario demonstrates practical ability to:
+- investigate Linux file integrity alerts
+- validate FIM-based detections
+- analyze suspicious file change activity
+- document high-severity integrity events in a SOC-style format
